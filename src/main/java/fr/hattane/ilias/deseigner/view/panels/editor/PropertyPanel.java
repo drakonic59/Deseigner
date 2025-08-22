@@ -1,4 +1,4 @@
-package fr.hattane.ilias.deseigner.view;
+package fr.hattane.ilias.deseigner.view.panels.editor;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -9,7 +9,10 @@ import java.awt.*;
  * Panneau affichant et éditant les propriétés de l'élément sélectionné.
  */
 public class PropertyPanel extends JPanel {
-    private final JTextField nameField = new JTextField();
+	
+	private static final long serialVersionUID = -5823019595713087538L;
+	
+	private final JTextField nameField = new JTextField();
     private final JTextField idField = new JTextField();
     private final JTextField descField = new JTextField();
     private final JTextField zIndexField = new JTextField();
@@ -81,4 +84,5 @@ public class PropertyPanel extends JPanel {
             setBackground(c);
         }
     }
+    
 }

@@ -1,16 +1,24 @@
-package fr.hattane.ilias.deseigner.model;
+package fr.hattane.ilias.deseigner.model.utils;
 
 public class ColorValue {
+	
     private int red;
     private int green;
     private int blue;
-    private double alpha;
+    private float alpha;
 
-    public ColorValue(int red, int green, int blue, double alpha) {
+    public ColorValue(int red, int green, int blue, float alpha) {
         this.red = red;
         this.green = green;
         this.blue = blue;
         this.alpha = alpha;
+    }
+
+    public ColorValue(int red, int green, int blue) {
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = 1.0f;
     }
 
     public int getRed() {
@@ -37,11 +45,11 @@ public class ColorValue {
         this.blue = blue;
     }
 
-    public double getAlpha() {
+    public float getAlpha() {
         return alpha;
     }
 
-    public void setAlpha(double alpha) {
+    public void setAlpha(float alpha) {
         this.alpha = alpha;
     }
 }

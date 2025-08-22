@@ -1,6 +1,6 @@
 package fr.hattane.ilias.deseigner;
 
-import fr.hattane.ilias.deseigner.view.MainFrame;
+import fr.hattane.ilias.deseigner.view.frames.MainFrame;
 
 public class Main {
     public static void main(String[] args) {

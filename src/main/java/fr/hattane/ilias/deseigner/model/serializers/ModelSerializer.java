@@ -1,12 +1,15 @@
-package fr.hattane.ilias.deseigner.model;
+package fr.hattane.ilias.deseigner.model.serializers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import fr.hattane.ilias.deseigner.model.ProjectModel;
 
 import java.io.Reader;
 import java.io.Writer;
 
 public class ModelSerializer {
+	
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public void write(ProjectModel model, Writer writer) {
@@ -16,4 +19,5 @@ public class ModelSerializer {
     public ProjectModel read(Reader reader) {
         return gson.fromJson(reader, ProjectModel.class);
     }
+    
 }

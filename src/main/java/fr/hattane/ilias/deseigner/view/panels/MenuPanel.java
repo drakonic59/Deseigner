@@ -1,11 +1,15 @@
-package fr.hattane.ilias.deseigner.view;
+package fr.hattane.ilias.deseigner.view.panels;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.function.Consumer;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 public class MenuPanel extends JPanel {
-    public MenuPanel(Runnable startEditor) {
+	
+	private static final long serialVersionUID = -6046308218369357949L;
+	
+	public MenuPanel(Runnable startEditor) {
         setLayout(new GridLayout(3, 1, 10, 10));
         JButton newProject = new JButton("Créer un nouveau projet");
         JButton editProject = new JButton("Modifier un projet");
@@ -17,4 +21,5 @@ public class MenuPanel extends JPanel {
         add(editProject);
         add(continueProject);
     }
+	
 }

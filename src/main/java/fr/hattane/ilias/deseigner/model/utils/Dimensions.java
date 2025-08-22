@@ -1,14 +1,13 @@
-package fr.hattane.ilias.deseigner.model;
+package fr.hattane.ilias.deseigner.model.utils;
 
 public class Dimensions {
+	
     private int width;
     private int height;
-    private double scale;
 
-    public Dimensions(int width, int height, double scale) {
+    public Dimensions(int width, int height) {
         this.width = width;
         this.height = height;
-        this.scale = scale;
     }
 
     public int getWidth() {
@@ -27,11 +26,4 @@ public class Dimensions {
         this.height = height;
     }
 
-    public double getScale() {
-        return scale;
-    }
-
-    public void setScale(double scale) {
-        this.scale = scale;
-    }
 }

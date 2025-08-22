@@ -1,22 +1,29 @@
-package fr.hattane.ilias.deseigner.model;
+package fr.hattane.ilias.deseigner.model.elements;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import fr.hattane.ilias.deseigner.model.ElementTypes;
+import fr.hattane.ilias.deseigner.model.utils.Dimensions;
+
 public abstract class DesignElement {
+	
+	public static long ids = 0;
+	
     private long id;
     private String name;
-    private ElementType type;
+    private ElementTypes type;
     private int index;
     private Dimensions dimensions;
     private Map<String, Object> properties = new HashMap<>();
 
-    protected DesignElement(long id, String name, ElementType type, int index, Dimensions dimensions) {
-        this.id = id;
+    protected DesignElement(String name, ElementTypes type, int index, Dimensions dimensions) {
+        this.id = ++ids;
         this.name = name;
         this.type = type;
         this.index = index;
         this.dimensions = dimensions;
+        this.properties = new HashMap<>();
     }
 
     public long getId() {
@@ -31,7 +38,7 @@ public abstract class DesignElement {
         this.name = name;
     }
 
-    public ElementType getType() {
+    public ElementTypes getType() {
         return type;
     }
 
@@ -50,4 +57,5 @@ public abstract class DesignElement {
     public Map<String, Object> getProperties() {
         return properties;
     }
+    
 }

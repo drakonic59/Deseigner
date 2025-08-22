@@ -5,16 +5,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.hattane.ilias.deseigner.model.elements.DesignElement;
+import fr.hattane.ilias.deseigner.model.utils.Dimensions;
+
 public class ProjectModel {
+	
+	public static long ids = 0;
+	
     private long id;
     private String name;
     private String description;
+    
     private Dimensions dimensions;
+    private float scale = 1.0f;
+    
     private Map<String, Object> properties = new HashMap<>();
     private List<DesignElement> elements = new ArrayList<>();
 
-    public ProjectModel(long id, String name, String description, Dimensions dimensions) {
-        this.id = id;
+    public ProjectModel(String name, String description, Dimensions dimensions) {
+        this.id = ++ids;
         this.name = name;
         this.description = description;
         this.dimensions = dimensions;
@@ -55,4 +64,12 @@ public class ProjectModel {
     public List<DesignElement> getElements() {
         return elements;
     }
+
+	public float getScale() {
+		return scale;
+	}
+
+	public void setScale(float scale) {
+		this.scale = scale;
+	}
 }

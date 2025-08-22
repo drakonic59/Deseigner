@@ -1,6 +1,6 @@
-package fr.hattane.ilias.deseigner.view;
+package fr.hattane.ilias.deseigner.view.panels.editor;
 
-import fr.hattane.ilias.deseigner.model.ElementType;
+import fr.hattane.ilias.deseigner.model.ElementTypes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,10 @@ import java.util.List;
  * Zone de dessin principale affichant la grille et les éléments.
  */
 public class ModelCanvas extends JPanel {
-    private final JPopupMenu contextMenu = new JPopupMenu();
+	
+	private static final long serialVersionUID = 1465933412461813546L;
+	
+	private final JPopupMenu contextMenu = new JPopupMenu();
     private final List<ElementView> elements = new ArrayList<>();
     private final PropertyPanel propertyPanel;
     private Point lastClick = new Point();
@@ -42,7 +45,7 @@ public class ModelCanvas extends JPanel {
     private void initContextMenu() {
         JMenu addMenu = new JMenu("Ajouter");
         JMenuItem rectItem = new JMenuItem("Rectangle");
-        rectItem.addActionListener(e -> addElement(ElementType.RECTANGLE));
+        rectItem.addActionListener(e -> addElement(ElementTypes.RECTANGLE));
         addMenu.add(rectItem);
         contextMenu.add(addMenu);
 
@@ -50,7 +53,7 @@ public class ModelCanvas extends JPanel {
         contextMenu.add(editItem);
     }
 
-    private void addElement(ElementType type) {
+    private void addElement(ElementTypes type) {
         ElementView el = new ElementView(lastClick.x, lastClick.y, 100, 60);
         el.setType(type);
         elements.add(el);
@@ -84,4 +87,5 @@ public class ModelCanvas extends JPanel {
             g.drawLine(0, y, getWidth(), y);
         }
     }
+    
 }

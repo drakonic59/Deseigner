@@ -1,6 +1,6 @@
-package fr.hattane.ilias.deseigner.view;
+package fr.hattane.ilias.deseigner.view.panels.editor;
 
-import fr.hattane.ilias.deseigner.model.ElementType;
+import fr.hattane.ilias.deseigner.model.ElementTypes;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,15 +11,19 @@ import java.awt.event.MouseEvent;
  * Représentation graphique simple d'un élément sur la zone de dessin.
  */
 public class ElementView extends JComponent {
-    private String elementName = "Élément";
+	
+	private static final long serialVersionUID = 3548738642211048029L;
+	
+	private String elementName = "Élément";
     private String elementId = "";
     private String description = "";
     private int zIndex = 0;
     private Color background = Color.LIGHT_GRAY;
-    private ElementType type = ElementType.RECTANGLE;
+    private ElementTypes type = ElementTypes.RECTANGLE;
     private Point dragOffset;
 
     public ElementView(int x, int y, int width, int height) {
+    	
         setBounds(x, y, width, height);
         setOpaque(false);
 
@@ -39,6 +43,7 @@ public class ElementView extends JComponent {
         };
         addMouseListener(adapter);
         addMouseMotionListener(adapter);
+        
     }
 
     public String getElementName() {
@@ -83,11 +88,11 @@ public class ElementView extends JComponent {
         repaint();
     }
 
-    public ElementType getType() {
+    public ElementTypes getType() {
         return type;
     }
 
-    public void setType(ElementType type) {
+    public void setType(ElementTypes type) {
         this.type = type;
     }
 
@@ -100,4 +105,5 @@ public class ElementView extends JComponent {
         g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
         g2.dispose();
     }
+    
 }
