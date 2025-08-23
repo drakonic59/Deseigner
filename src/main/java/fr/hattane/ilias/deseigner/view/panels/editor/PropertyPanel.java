@@ -2,6 +2,7 @@ package fr.hattane.ilias.deseigner.view.panels.editor;
 
 import fr.hattane.ilias.deseigner.model.ElementTypes;
 import fr.hattane.ilias.deseigner.model.elements.types.TextElement;
+import fr.hattane.ilias.deseigner.model.utils.ColorValue;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -36,15 +37,18 @@ public class PropertyPanel extends JPanel {
     private final JTextField textSizeField = new JTextField();
     private final JComboBox<TextElement.TextAlignment> alignBox = new JComboBox<>(TextElement.TextAlignment.values());
     private final JButton textColorButton = new JButton("Couleur texte");
+    private final JCheckBox boldBox = new JCheckBox("Gras");
+    private final JCheckBox italicBox = new JCheckBox("Italique");
     private final JPanel textOptions = new JPanel();
     private ElementView current;
 
     public PropertyPanel() {
-        setPreferredSize(new Dimension(220, 0));
+        setPreferredSize(new Dimension(260, 800));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10,10,10,10));
 
         addLabeledField("Nom", nameField);
+        idField.setEditable(false);
         addLabeledField("Id", idField);
         addLabeledField("Description", descField);
         addLabeledField("Z-index", zIndexField);
@@ -83,7 +87,16 @@ public class PropertyPanel extends JPanel {
         textOptions.add(alignBox);
         alignBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, alignBox.getPreferredSize().height));
         textOptions.add(Box.createVerticalStrut(8));
+        textOptions.add(boldBox);
+        textOptions.add(italicBox);
+        boldBox.addActionListener(e -> apply());
+        italicBox.addActionListener(e -> apply());
+        textOptions.add(Box.createVerticalStrut(8));
+        textOptions.add(new JLabel("Couleur texte"));
         textColorButton.addActionListener(e -> chooseTextColor());
+        textColorButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, textColorButton.getPreferredSize().height));
+        textColorButton.setBackground(Color.BLACK);
+        textColorButton.setOpaque(true);
         textOptions.add(textColorButton);
         add(textOptions);
         textOptions.setVisible(false);
@@ -94,7 +107,6 @@ public class PropertyPanel extends JPanel {
             @Override public void changedUpdate(DocumentEvent e) { apply(); }
         };
         nameField.getDocument().addDocumentListener(textListener);
-        idField.getDocument().addDocumentListener(textListener);
         descField.getDocument().addDocumentListener(textListener);
 
         FocusAdapter numberFocus = new FocusAdapter() {
@@ -177,13 +189,16 @@ public class PropertyPanel extends JPanel {
             fontBox.setSelectedItem(t.getFont());
             textSizeField.setText(String.valueOf(t.getFontSize()));
             alignBox.setSelectedItem(t.getAlignment());
+            ColorValue tc = t.getTextColor();
+            textColorButton.setBackground(new Color(tc.getRed(), tc.getGreen(), tc.getBlue()));
+            boldBox.setSelected(t.isBold());
+            italicBox.setSelected(t.isItalic());
         }
     }
 
     private void apply() {
         if (current == null) return;
         current.setElementName(nameField.getText());
-        current.setElementId(idField.getText());
         current.setDescription(descField.getText());
         try { current.setZIndex(Integer.parseInt(zIndexField.getText())); } catch (NumberFormatException ignored) {}
         try { current.getModel().setWidth(Integer.parseInt(widthField.getText())); } catch (NumberFormatException ignored) {}
@@ -199,6 +214,8 @@ public class PropertyPanel extends JPanel {
             try { t.setFontSize(Integer.parseInt(textSizeField.getText())); } catch (NumberFormatException ignored) {}
             TextElement.TextAlignment al = (TextElement.TextAlignment) alignBox.getSelectedItem();
             if (al != null) t.setAlignment(al);
+            t.setBold(boldBox.isSelected());
+            t.setItalic(italicBox.isSelected());
         }
         current.getCanvas().updateElementView(current);
         current.repaint();
@@ -228,6 +245,7 @@ public class PropertyPanel extends JPanel {
                 new Color(t.getTextColor().getRed(), t.getTextColor().getGreen(), t.getTextColor().getBlue()));
         if (c != null) {
             t.setTextColor(new fr.hattane.ilias.deseigner.model.utils.ColorValue(c.getRed(), c.getGreen(), c.getBlue()));
+            textColorButton.setBackground(c);
             current.repaint();
         }
     }

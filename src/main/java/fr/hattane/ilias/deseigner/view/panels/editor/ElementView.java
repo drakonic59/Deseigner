@@ -20,10 +20,9 @@ public class ElementView extends JComponent {
 
     private final RectangleElement model;
     private final ModelCanvas canvas;
-    private String elementId = "";
     private String description = "";
     private int zIndex = 0;
-    private Point dragOffset;
+    private Point lastMouse;
     private boolean selected;
     private ElementTypes type = ElementTypes.RECTANGLE;
     private ResizeDirection resizeDir = ResizeDirection.NONE;
@@ -44,23 +43,23 @@ public class ElementView extends JComponent {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     canvas.selectElement(ElementView.this);
-                    dragOffset = e.getPoint();
+                    lastMouse = e.getLocationOnScreen();
                 }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                dragOffset = null;
+                lastMouse = null;
                 resizeDir = ResizeDirection.NONE;
                 setCursor(Cursor.getDefaultCursor());
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                if (dragOffset == null) return;
+                if (lastMouse == null) return;
                 float scale = canvas.getScale();
-                int dx = Math.round((e.getX() - dragOffset.x) / scale);
-                int dy = Math.round((e.getY() - dragOffset.y) / scale);
+                int dx = Math.round((e.getXOnScreen() - lastMouse.x) / scale);
+                int dy = Math.round((e.getYOnScreen() - lastMouse.y) / scale);
                 if (resizeDir == ResizeDirection.EAST) {
                     model.setWidth(Math.max(1, model.getWidth() + dx));
                 } else if (resizeDir == ResizeDirection.WEST) {
@@ -77,7 +76,7 @@ public class ElementView extends JComponent {
                     model.setX(model.getX() + dx);
                     model.setY(model.getY() + dy);
                 }
-                dragOffset = e.getPoint();
+                lastMouse = e.getLocationOnScreen();
                 canvas.updateElementView(ElementView.this);
                 canvas.refreshPropertyPanel();
             }
@@ -121,11 +120,7 @@ public class ElementView extends JComponent {
     }
 
     public String getElementId() {
-        return elementId;
-    }
-
-    public void setElementId(String elementId) {
-        this.elementId = elementId;
+        return String.valueOf(model.getId());
     }
 
     public String getDescription() {
@@ -142,8 +137,8 @@ public class ElementView extends JComponent {
 
     public void setZIndex(int zIndex) {
         this.zIndex = zIndex;
-        if (getParent() != null) {
-            getParent().setComponentZOrder(this, zIndex);
+        if (canvas != null) {
+            canvas.reorderElements();
         }
     }
 
@@ -194,7 +189,10 @@ public class ElementView extends JComponent {
             TextElement t = (TextElement) model;
             ColorValue tc = t.getTextColor();
             g2.setColor(new Color(tc.getRed(), tc.getGreen(), tc.getBlue()));
-            g2.setFont(new Font(t.getFont(), Font.PLAIN, t.getFontSize()));
+            int style = Font.PLAIN;
+            if (t.isBold()) style |= Font.BOLD;
+            if (t.isItalic()) style |= Font.ITALIC;
+            g2.setFont(new Font(t.getFont(), style, t.getFontSize()));
             FontMetrics fm = g2.getFontMetrics();
             String text = model.getName();
             int textWidth = fm.stringWidth(text);

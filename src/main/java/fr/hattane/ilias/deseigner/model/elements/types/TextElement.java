@@ -14,6 +14,8 @@ public class TextElement extends RectangleElement {
     private int fontSize = 14;
     private ColorValue textColor = new ColorValue(0, 0, 0);
     private TextAlignment alignment = TextAlignment.LEFT;
+    private boolean bold = false;
+    private boolean italic = false;
 
     public TextElement(String name, int x, int y, int width, int height) {
         this(name, x, y, width, height, ElementTypes.TEXT);
@@ -54,5 +56,21 @@ public class TextElement extends RectangleElement {
 
     public void setAlignment(TextAlignment alignment) {
         this.alignment = alignment;
+    }
+
+    public boolean isBold() {
+        return bold;
+    }
+
+    public void setBold(boolean bold) {
+        this.bold = bold;
+    }
+
+    public boolean isItalic() {
+        return italic;
+    }
+
+    public void setItalic(boolean italic) {
+        this.italic = italic;
     }
 }
