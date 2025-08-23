@@ -8,6 +8,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import javax.swing.SwingUtilities;
 
 /**
  * Panneau affichant et éditant les propriétés de l'élément sélectionné.
@@ -84,22 +88,37 @@ public class PropertyPanel extends JPanel {
         add(textOptions);
         textOptions.setVisible(false);
 
-        DocumentListener docListener = new DocumentListener() {
+        DocumentListener textListener = new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { apply(); }
             @Override public void removeUpdate(DocumentEvent e) { apply(); }
             @Override public void changedUpdate(DocumentEvent e) { apply(); }
         };
-        nameField.getDocument().addDocumentListener(docListener);
-        idField.getDocument().addDocumentListener(docListener);
-        descField.getDocument().addDocumentListener(docListener);
-        zIndexField.getDocument().addDocumentListener(docListener);
-        widthField.getDocument().addDocumentListener(docListener);
-        heightField.getDocument().addDocumentListener(docListener);
-        borderWidthField.getDocument().addDocumentListener(docListener);
-        shadowOffsetXField.getDocument().addDocumentListener(docListener);
-        shadowOffsetYField.getDocument().addDocumentListener(docListener);
-        shadowBlurField.getDocument().addDocumentListener(docListener);
-        textSizeField.getDocument().addDocumentListener(docListener);
+        nameField.getDocument().addDocumentListener(textListener);
+        idField.getDocument().addDocumentListener(textListener);
+        descField.getDocument().addDocumentListener(textListener);
+
+        FocusAdapter numberFocus = new FocusAdapter() {
+            @Override public void focusLost(FocusEvent e) { apply(); }
+        };
+        ActionListener numberAction = e -> apply();
+
+        zIndexField.addFocusListener(numberFocus);
+        zIndexField.addActionListener(numberAction);
+        widthField.addFocusListener(numberFocus);
+        widthField.addActionListener(numberAction);
+        heightField.addFocusListener(numberFocus);
+        heightField.addActionListener(numberAction);
+        borderWidthField.addFocusListener(numberFocus);
+        borderWidthField.addActionListener(numberAction);
+        shadowOffsetXField.addFocusListener(numberFocus);
+        shadowOffsetXField.addActionListener(numberAction);
+        shadowOffsetYField.addFocusListener(numberFocus);
+        shadowOffsetYField.addActionListener(numberAction);
+        shadowBlurField.addFocusListener(numberFocus);
+        shadowBlurField.addActionListener(numberAction);
+        textSizeField.addFocusListener(numberFocus);
+        textSizeField.addActionListener(numberAction);
+
         fontBox.addActionListener(e -> apply());
         alignBox.addActionListener(e -> apply());
     }
@@ -116,7 +135,8 @@ public class PropertyPanel extends JPanel {
      */
     public void setElement(ElementView element) {
         this.current = element;
-        setVisible(element != null);
+        Container scroll = SwingUtilities.getAncestorOfClass(JScrollPane.class, this);
+        if (scroll != null) scroll.setVisible(element != null);
         if (element == null) {
             nameField.setText("");
             idField.setText("");

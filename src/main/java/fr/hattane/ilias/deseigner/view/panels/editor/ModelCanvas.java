@@ -181,7 +181,8 @@ public class ModelCanvas extends JPanel {
         }
     }
 
-    private void selectElement(ElementView el) {
+    public void selectElement(ElementView el) {
+
         if (selected != null) selected.setSelected(false);
         selected = el;
         if (el != null) {

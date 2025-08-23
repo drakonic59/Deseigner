@@ -42,9 +42,8 @@ public class ElementView extends JComponent {
         MouseAdapter adapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (resizeDir != ResizeDirection.NONE) {
-                    dragOffset = e.getPoint();
-                } else {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    canvas.selectElement(ElementView.this);
                     dragOffset = e.getPoint();
                 }
             }
