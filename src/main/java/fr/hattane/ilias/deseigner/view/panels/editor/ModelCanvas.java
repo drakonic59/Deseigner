@@ -3,6 +3,7 @@ package fr.hattane.ilias.deseigner.view.panels.editor;
 import fr.hattane.ilias.deseigner.model.ElementTypes;
 import fr.hattane.ilias.deseigner.model.ProjectModel;
 import fr.hattane.ilias.deseigner.model.elements.DesignElement;
+import fr.hattane.ilias.deseigner.model.elements.PageElement;
 import fr.hattane.ilias.deseigner.model.elements.types.RectangleElement;
 import fr.hattane.ilias.deseigner.model.elements.types.TextElement;
 import fr.hattane.ilias.deseigner.model.elements.types.ButtonElement;
@@ -24,6 +25,8 @@ public class ModelCanvas extends JPanel {
     private static final long serialVersionUID = 1465933412461813546L;
 
     private final JPopupMenu contextMenu = new JPopupMenu();
+    private final JMenuItem deleteItem = new JMenuItem("Supprimer");
+    private final JCheckBoxMenuItem togglePropItem = new JCheckBoxMenuItem("Afficher les propriétés", true);
     private final List<ElementView> elements = new ArrayList<>();
     private final PropertyPanel propertyPanel;
     private final ProjectModel project;
@@ -39,16 +42,12 @@ public class ModelCanvas extends JPanel {
         this.project = project;
         setBackground(Color.WHITE);
         setLayout(null);
+        if (project.getElements().isEmpty()) {
+            project.getElements().add(new PageElement("Page", 800, 600));
+        }
         initContextMenu();
         for (DesignElement el : project.getElements()) {
-            if (el instanceof RectangleElement) {
-                ElementView view = new ElementView(this, (RectangleElement) el);
-                view.setType(el.getType());
-                elements.add(view);
-                add(view);
-                view.setZIndex(elements.size() - 1);
-                updateElementView(view);
-            }
+            createElementViews(el);
         }
 
         MouseAdapter mouse = new MouseAdapter() {
@@ -124,6 +123,10 @@ public class ModelCanvas extends JPanel {
 
         editItem.addActionListener(e -> propertyPanel.setElement(target));
         contextMenu.add(editItem);
+        deleteItem.addActionListener(e -> deleteTarget());
+        contextMenu.add(deleteItem);
+        togglePropItem.addActionListener(e -> toggleProperties());
+        contextMenu.add(togglePropItem);
     }
 
     private Point toModel(Point p) {
@@ -142,7 +145,10 @@ public class ModelCanvas extends JPanel {
         } else {
             rect = new RectangleElement("Rectangle", lastClick.x, lastClick.y, 100, 60);
         }
-        project.getElements().add(rect);
+        DesignElement parent = selected != null ? selected.getModel() : project.getElements().get(0);
+        if (parent instanceof DesignElement) {
+            parent.addChild(rect);
+        }
         ElementView el = new ElementView(this, rect);
         el.setType(type);
         int newZ = elements.stream().mapToInt(ElementView::getZIndex).max().orElse(-1) + 1;
@@ -165,11 +171,32 @@ public class ModelCanvas extends JPanel {
         lastClick = toModel(e.getPoint());
         target = findElement(lastClick);
         editItem.setEnabled(target != null);
+        deleteItem.setEnabled(target != null);
+        togglePropItem.setEnabled(target != null);
+        Container scroll = SwingUtilities.getAncestorOfClass(JScrollPane.class, propertyPanel);
+        if (scroll != null) {
+            togglePropItem.setSelected(scroll.isVisible());
+        }
         contextMenu.show(this, e.getX(), e.getY());
     }
 
     public void updateElementView(ElementView el) {
         RectangleElement m = el.getModel();
+        if (m.getParent() instanceof RectangleElement) {
+            RectangleElement p = (RectangleElement) m.getParent();
+            if (m.isStickLeft()) {
+                m.setX(p.getX());
+            } else if (m.isStickRight()) {
+                m.setX(p.getX() + p.getWidth() - m.getWidth());
+            } else if (m.getAlignment() == RectangleElement.Alignment.CENTER) {
+                m.setX(p.getX() + (p.getWidth() - m.getWidth()) / 2);
+            }
+            if (m.isStickTop()) {
+                m.setY(p.getY());
+            } else if (m.isStickBottom()) {
+                m.setY(p.getY() + p.getHeight() - m.getHeight());
+            }
+        }
         float scale = project.getScale();
         int x = Math.round((m.getX() + offsetX) * scale);
         int y = Math.round((m.getY() + offsetY) * scale);
@@ -191,6 +218,45 @@ public class ModelCanvas extends JPanel {
             setComponentZOrder(elements.get(i), elements.size() - 1 - i);
         }
         repaint();
+    }
+
+    private void deleteTarget() {
+        if (target != null) {
+            elements.remove(target);
+            remove(target);
+            DesignElement m = target.getModel();
+            if (m.getParent() != null) {
+                m.getParent().removeChild(m);
+            } else {
+                project.getElements().remove(m);
+            }
+            if (selected == target) {
+                selectElement(null);
+            }
+            repaint();
+        }
+    }
+
+    private void toggleProperties() {
+        Container scroll = SwingUtilities.getAncestorOfClass(JScrollPane.class, propertyPanel);
+        if (scroll != null) {
+            scroll.setVisible(!scroll.isVisible());
+        }
+    }
+
+    private void createElementViews(DesignElement de) {
+        if (de instanceof RectangleElement) {
+            RectangleElement re = (RectangleElement) de;
+            ElementView view = new ElementView(this, re);
+            view.setType(de.getType());
+            elements.add(view);
+            add(view);
+            view.setZIndex(elements.size() - 1);
+            updateElementView(view);
+            for (DesignElement child : de.getChildren()) {
+                createElementViews(child);
+            }
+        }
     }
 
     public void selectElement(ElementView el) {

@@ -3,6 +3,8 @@ package fr.hattane.ilias.deseigner.view.panels.editor;
 import fr.hattane.ilias.deseigner.model.ElementTypes;
 import fr.hattane.ilias.deseigner.model.elements.types.TextElement;
 import fr.hattane.ilias.deseigner.model.utils.ColorValue;
+import fr.hattane.ilias.deseigner.model.utils.BorderType;
+import fr.hattane.ilias.deseigner.model.elements.types.RectangleElement;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -12,7 +14,6 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import javax.swing.SwingUtilities;
 
 /**
  * Panneau affichant et éditant les propriétés de l'élément sélectionné.
@@ -28,6 +29,8 @@ public class PropertyPanel extends JPanel {
     private final JTextField widthField = new JTextField();
     private final JTextField heightField = new JTextField();
     private final JTextField borderWidthField = new JTextField();
+    private final JComboBox<BorderType> borderTypeBox = new JComboBox<>(BorderType.values());
+    private final JTextField borderRadiusField = new JTextField();
     private final JCheckBox shadowEnableBox = new JCheckBox("Ombre");
     private final JTextField shadowOffsetXField = new JTextField();
     private final JTextField shadowOffsetYField = new JTextField();
@@ -40,10 +43,15 @@ public class PropertyPanel extends JPanel {
     private final JCheckBox boldBox = new JCheckBox("Gras");
     private final JCheckBox italicBox = new JCheckBox("Italique");
     private final JPanel textOptions = new JPanel();
+    private final JCheckBox topBox = new JCheckBox("Collé haut");
+    private final JCheckBox bottomBox = new JCheckBox("Collé bas");
+    private final JCheckBox leftBox = new JCheckBox("Collé gauche");
+    private final JCheckBox rightBox = new JCheckBox("Collé droite");
+    private final JComboBox<RectangleElement.Alignment> alignElementBox = new JComboBox<>(RectangleElement.Alignment.values());
     private ElementView current;
+    private boolean updating;
 
     public PropertyPanel() {
-        setPreferredSize(new Dimension(260, 800));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(new EmptyBorder(10,10,10,10));
 
@@ -55,6 +63,8 @@ public class PropertyPanel extends JPanel {
         addLabeledField("Largeur", widthField);
         addLabeledField("Hauteur", heightField);
         addLabeledField("Bordure", borderWidthField);
+        addLabeledField("Type de bordure", borderTypeBox);
+        addLabeledField("Rayon", borderRadiusField);
 
         JButton colorButton = new JButton("Couleur de fond");
         colorButton.addActionListener(e -> chooseColor());
@@ -101,6 +111,14 @@ public class PropertyPanel extends JPanel {
         add(textOptions);
         textOptions.setVisible(false);
 
+        add(Box.createVerticalStrut(8));
+        add(topBox);
+        add(bottomBox);
+        add(leftBox);
+        add(rightBox);
+        add(new JLabel("Alignement"));
+        add(alignElementBox);
+
         DocumentListener textListener = new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { apply(); }
             @Override public void removeUpdate(DocumentEvent e) { apply(); }
@@ -122,6 +140,8 @@ public class PropertyPanel extends JPanel {
         heightField.addActionListener(numberAction);
         borderWidthField.addFocusListener(numberFocus);
         borderWidthField.addActionListener(numberAction);
+        borderRadiusField.addFocusListener(numberFocus);
+        borderRadiusField.addActionListener(numberAction);
         shadowOffsetXField.addFocusListener(numberFocus);
         shadowOffsetXField.addActionListener(numberAction);
         shadowOffsetYField.addFocusListener(numberFocus);
@@ -133,6 +153,12 @@ public class PropertyPanel extends JPanel {
 
         fontBox.addActionListener(e -> apply());
         alignBox.addActionListener(e -> apply());
+        borderTypeBox.addActionListener(e -> apply());
+        topBox.addActionListener(e -> apply());
+        bottomBox.addActionListener(e -> apply());
+        leftBox.addActionListener(e -> apply());
+        rightBox.addActionListener(e -> apply());
+        alignElementBox.addActionListener(e -> apply());
     }
 
     private void addLabeledField(String label, JTextField field) {
@@ -142,6 +168,13 @@ public class PropertyPanel extends JPanel {
         add(Box.createVerticalStrut(8));
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        Dimension d = super.getPreferredSize();
+        d.width = 260;
+        return d;
+    }
+
     /**
      * Charge l'élément dans le panneau afin d'en modifier les propriétés.
      */
@@ -149,6 +182,7 @@ public class PropertyPanel extends JPanel {
         this.current = element;
         Container scroll = SwingUtilities.getAncestorOfClass(JScrollPane.class, this);
         if (scroll != null) scroll.setVisible(element != null);
+        updating = true;
         if (element == null) {
             nameField.setText("");
             idField.setText("");
@@ -157,6 +191,13 @@ public class PropertyPanel extends JPanel {
             widthField.setText("");
             heightField.setText("");
             borderWidthField.setText("");
+            borderTypeBox.setSelectedItem(BorderType.SQUARE);
+            borderRadiusField.setText("");
+            topBox.setSelected(false);
+            bottomBox.setSelected(false);
+            leftBox.setSelected(false);
+            rightBox.setSelected(false);
+            alignElementBox.setSelectedItem(RectangleElement.Alignment.LEFT);
             shadowEnableBox.setSelected(false);
             shadowOffsetXField.setText("");
             shadowOffsetYField.setText("");
@@ -165,14 +206,17 @@ public class PropertyPanel extends JPanel {
             textSizeField.setText("");
             alignBox.setSelectedItem(TextElement.TextAlignment.LEFT);
             textOptions.setVisible(false);
+            updating = false;
             return;
         }
         textOptions.setVisible(element.getType() == ElementTypes.TEXT || element.getType() == ElementTypes.BUTTON);
         refresh();
+        updating = false;
     }
 
     public void refresh() {
         if (current == null) return;
+        updating = true;
         nameField.setText(current.getElementName());
         idField.setText(current.getElementId());
         descField.setText(current.getDescription());
@@ -180,6 +224,13 @@ public class PropertyPanel extends JPanel {
         widthField.setText(String.valueOf(current.getModel().getWidth()));
         heightField.setText(String.valueOf(current.getModel().getHeight()));
         borderWidthField.setText(String.valueOf(current.getModel().getBorderWidth()));
+        borderTypeBox.setSelectedItem(current.getModel().getBorderType());
+        borderRadiusField.setText(String.valueOf(current.getModel().getBorderRadius()));
+        topBox.setSelected(current.getModel().isStickTop());
+        bottomBox.setSelected(current.getModel().isStickBottom());
+        leftBox.setSelected(current.getModel().isStickLeft());
+        rightBox.setSelected(current.getModel().isStickRight());
+        alignElementBox.setSelectedItem(current.getModel().getAlignment());
         shadowEnableBox.setSelected(current.getModel().isShadowEnabled());
         shadowOffsetXField.setText(String.valueOf(current.getModel().getShadowOffsetX()));
         shadowOffsetYField.setText(String.valueOf(current.getModel().getShadowOffsetY()));
@@ -194,16 +245,24 @@ public class PropertyPanel extends JPanel {
             boldBox.setSelected(t.isBold());
             italicBox.setSelected(t.isItalic());
         }
+        updating = false;
     }
 
     private void apply() {
-        if (current == null) return;
+        if (current == null || updating) return;
         current.setElementName(nameField.getText());
         current.setDescription(descField.getText());
         try { current.setZIndex(Integer.parseInt(zIndexField.getText())); } catch (NumberFormatException ignored) {}
         try { current.getModel().setWidth(Integer.parseInt(widthField.getText())); } catch (NumberFormatException ignored) {}
         try { current.getModel().setHeight(Integer.parseInt(heightField.getText())); } catch (NumberFormatException ignored) {}
         try { current.getModel().setBorderWidth(Integer.parseInt(borderWidthField.getText())); } catch (NumberFormatException ignored) {}
+        current.getModel().setBorderType((BorderType) borderTypeBox.getSelectedItem());
+        try { current.getModel().setBorderRadius(Integer.parseInt(borderRadiusField.getText())); } catch (NumberFormatException ignored) {}
+        current.getModel().setStickTop(topBox.isSelected());
+        current.getModel().setStickBottom(bottomBox.isSelected());
+        current.getModel().setStickLeft(leftBox.isSelected());
+        current.getModel().setStickRight(rightBox.isSelected());
+        current.getModel().setAlignment((RectangleElement.Alignment) alignElementBox.getSelectedItem());
         current.getModel().setShadowEnabled(shadowEnableBox.isSelected());
         try { current.getModel().setShadowOffsetX(Integer.parseInt(shadowOffsetXField.getText())); } catch (NumberFormatException ignored) {}
         try { current.getModel().setShadowOffsetY(Integer.parseInt(shadowOffsetYField.getText())); } catch (NumberFormatException ignored) {}

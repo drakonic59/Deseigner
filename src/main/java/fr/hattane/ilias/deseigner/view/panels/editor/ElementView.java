@@ -43,6 +43,7 @@ public class ElementView extends JComponent {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     canvas.selectElement(ElementView.this);
+                    updateResizeDirection(e);
                     lastMouse = e.getLocationOnScreen();
                 }
             }
@@ -52,6 +53,7 @@ public class ElementView extends JComponent {
                 lastMouse = null;
                 resizeDir = ResizeDirection.NONE;
                 setCursor(Cursor.getDefaultCursor());
+                canvas.refreshPropertyPanel();
             }
 
             @Override
@@ -78,7 +80,6 @@ public class ElementView extends JComponent {
                 }
                 lastMouse = e.getLocationOnScreen();
                 canvas.updateElementView(ElementView.this);
-                canvas.refreshPropertyPanel();
             }
         };
         addMouseListener(adapter);
@@ -87,24 +88,28 @@ public class ElementView extends JComponent {
             @Override
             public void mouseMoved(MouseEvent e) {
                 if (!selected) return;
-                if (e.getX() < RESIZE_MARGIN) {
-                    resizeDir = ResizeDirection.WEST;
-                    setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR));
-                } else if (e.getX() > getWidth() - RESIZE_MARGIN) {
-                    resizeDir = ResizeDirection.EAST;
-                    setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
-                } else if (e.getY() < RESIZE_MARGIN) {
-                    resizeDir = ResizeDirection.NORTH;
-                    setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
-                } else if (e.getY() > getHeight() - RESIZE_MARGIN) {
-                    resizeDir = ResizeDirection.SOUTH;
-                    setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
-                } else {
-                    resizeDir = ResizeDirection.NONE;
-                    setCursor(Cursor.getDefaultCursor());
-                }
+                updateResizeDirection(e);
             }
         });
+    }
+
+    private void updateResizeDirection(MouseEvent e) {
+        if (e.getX() < RESIZE_MARGIN) {
+            resizeDir = ResizeDirection.WEST;
+            setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR));
+        } else if (e.getX() > getWidth() - RESIZE_MARGIN) {
+            resizeDir = ResizeDirection.EAST;
+            setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+        } else if (e.getY() < RESIZE_MARGIN) {
+            resizeDir = ResizeDirection.NORTH;
+            setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+        } else if (e.getY() > getHeight() - RESIZE_MARGIN) {
+            resizeDir = ResizeDirection.SOUTH;
+            setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
+        } else {
+            resizeDir = ResizeDirection.NONE;
+            setCursor(Cursor.getDefaultCursor());
+        }
     }
 
     public RectangleElement getModel() {
@@ -178,12 +183,22 @@ public class ElementView extends JComponent {
             g2.fillRoundRect(model.getShadowOffsetX(), model.getShadowOffsetY(), getWidth(), getHeight(), model.getShadowBlur(), model.getShadowBlur());
         }
         g2.setColor(getBackgroundColor());
-        g2.fillRect(0, 0, getWidth(), getHeight());
+        if (model.getBorderType() == fr.hattane.ilias.deseigner.model.utils.BorderType.ROUNDED) {
+            int r = model.getBorderRadius();
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), r, r);
+        } else {
+            g2.fillRect(0, 0, getWidth(), getHeight());
+        }
         ColorValue bc = model.getBorderColor();
         Color border = new Color(bc.getRed(), bc.getGreen(), bc.getBlue());
         g2.setColor(selected ? new Color(0, 120, 215) : border);
         g2.setStroke(new BasicStroke(model.getBorderWidth()));
-        g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        if (model.getBorderType() == fr.hattane.ilias.deseigner.model.utils.BorderType.ROUNDED) {
+            int r = model.getBorderRadius();
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, r, r);
+        } else {
+            g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        }
 
         if ((type == ElementTypes.TEXT || type == ElementTypes.BUTTON) && model instanceof TextElement) {
             TextElement t = (TextElement) model;
