@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Comparator;
 
 /**
  * Zone de dessin principale affichant la grille et les éléments.
@@ -45,6 +46,7 @@ public class ModelCanvas extends JPanel {
                 view.setType(el.getType());
                 elements.add(view);
                 add(view);
+                view.setZIndex(elements.size() - 1);
                 updateElementView(view);
             }
         }
@@ -143,8 +145,10 @@ public class ModelCanvas extends JPanel {
         project.getElements().add(rect);
         ElementView el = new ElementView(this, rect);
         el.setType(type);
+        int newZ = elements.stream().mapToInt(ElementView::getZIndex).max().orElse(-1) + 1;
         elements.add(el);
         add(el);
+        el.setZIndex(newZ);
         selectElement(el);
         updateElementView(el);
     }
@@ -179,6 +183,14 @@ public class ModelCanvas extends JPanel {
         for (ElementView el : elements) {
             updateElementView(el);
         }
+    }
+
+    public void reorderElements() {
+        elements.sort(Comparator.comparingInt(ElementView::getZIndex));
+        for (int i = 0; i < elements.size(); i++) {
+            setComponentZOrder(elements.get(i), elements.size() - 1 - i);
+        }
+        repaint();
     }
 
     public void selectElement(ElementView el) {
