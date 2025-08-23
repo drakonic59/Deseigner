@@ -1,6 +1,8 @@
 package fr.hattane.ilias.deseigner.model.elements;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fr.hattane.ilias.deseigner.model.ElementTypes;
@@ -16,6 +18,8 @@ public abstract class DesignElement {
     private int index;
     private Dimensions dimensions;
     private Map<String, Object> properties = new HashMap<>();
+    private DesignElement parent;
+    private final List<DesignElement> children = new ArrayList<>();
 
     protected DesignElement(String name, ElementTypes type, int index, Dimensions dimensions) {
         this.id = ++ids;
@@ -56,6 +60,30 @@ public abstract class DesignElement {
 
     public Map<String, Object> getProperties() {
         return properties;
+    }
+
+    public DesignElement getParent() {
+        return parent;
+    }
+
+    public List<DesignElement> getChildren() {
+        return children;
+    }
+
+    public void addChild(DesignElement child) {
+        if (child != null) {
+            children.add(child);
+            child.parent = this;
+        }
+    }
+
+    public void removeChild(DesignElement child) {
+        if (child != null) {
+            children.remove(child);
+            if (child.parent == this) {
+                child.parent = null;
+            }
+        }
     }
     
 }

@@ -2,6 +2,7 @@ package fr.hattane.ilias.deseigner.model.elements.types;
 
 import fr.hattane.ilias.deseigner.model.ElementTypes;
 import fr.hattane.ilias.deseigner.model.elements.DesignElement;
+import fr.hattane.ilias.deseigner.model.utils.BorderType;
 import fr.hattane.ilias.deseigner.model.utils.ColorValue;
 import fr.hattane.ilias.deseigner.model.utils.Dimensions;
 
@@ -15,11 +16,20 @@ public class RectangleElement extends DesignElement {
     private ColorValue background = new ColorValue(200, 200, 200);
     private ColorValue borderColor = new ColorValue(0, 0, 0);
     private int borderWidth = 1;
+    private BorderType borderType = BorderType.SQUARE;
+    private int borderRadius = 0;
     private boolean shadow = false;
     private ColorValue shadowColor = new ColorValue(0, 0, 0, 0.5f);
     private int shadowOffsetX = 2;
     private int shadowOffsetY = 2;
     private int shadowBlur = 4;
+    private boolean stickTop;
+    private boolean stickBottom;
+    private boolean stickLeft;
+    private boolean stickRight;
+
+    public enum Alignment { LEFT, CENTER, RIGHT }
+    private Alignment alignment = Alignment.LEFT;
 
     public RectangleElement(String name, int x, int y, int width, int height) {
         this(name, x, y, width, height, ElementTypes.RECTANGLE);
@@ -87,6 +97,22 @@ public class RectangleElement extends DesignElement {
         this.borderWidth = borderWidth;
     }
 
+    public BorderType getBorderType() {
+        return borderType;
+    }
+
+    public void setBorderType(BorderType borderType) {
+        this.borderType = borderType;
+    }
+
+    public int getBorderRadius() {
+        return borderRadius;
+    }
+
+    public void setBorderRadius(int borderRadius) {
+        this.borderRadius = borderRadius;
+    }
+
     public boolean isShadowEnabled() {
         return shadow;
     }
@@ -125,6 +151,46 @@ public class RectangleElement extends DesignElement {
 
     public void setShadowBlur(int shadowBlur) {
         this.shadowBlur = shadowBlur;
+    }
+
+    public boolean isStickTop() {
+        return stickTop;
+    }
+
+    public void setStickTop(boolean stickTop) {
+        this.stickTop = stickTop;
+    }
+
+    public boolean isStickBottom() {
+        return stickBottom;
+    }
+
+    public void setStickBottom(boolean stickBottom) {
+        this.stickBottom = stickBottom;
+    }
+
+    public boolean isStickLeft() {
+        return stickLeft;
+    }
+
+    public void setStickLeft(boolean stickLeft) {
+        this.stickLeft = stickLeft;
+    }
+
+    public boolean isStickRight() {
+        return stickRight;
+    }
+
+    public void setStickRight(boolean stickRight) {
+        this.stickRight = stickRight;
+    }
+
+    public Alignment getAlignment() {
+        return alignment;
+    }
+
+    public void setAlignment(Alignment alignment) {
+        this.alignment = alignment;
     }
 }
 
