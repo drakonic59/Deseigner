@@ -5,5 +5,7 @@ package fr.hattane.ilias.deseigner.model;
  */
 public enum ElementTypes {
     PAGE,
-    RECTANGLE
+    RECTANGLE,
+    TEXT,
+    BUTTON
 }
